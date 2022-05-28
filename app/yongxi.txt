@@ -1,0 +1,3 @@
+name: Yongxi Zhou
+github name: Yongxi-Zhou
+github link: https://github.com/Yongxi-Zhou/CS5520
