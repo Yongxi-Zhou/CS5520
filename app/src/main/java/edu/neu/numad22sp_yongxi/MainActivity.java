@@ -12,6 +12,8 @@ public class MainActivity extends AppCompatActivity {
 
     Button btn_about;
     Button btn_clicky;
+    Button btn_link;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -31,6 +33,15 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(MainActivity.this, ClickyPage.class);
+                startActivity(intent);
+            }
+        });
+
+        btn_link = findViewById(R.id.btn_linkController);
+        btn_link.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, LinkControllerPage.class);
                 startActivity(intent);
             }
         });
