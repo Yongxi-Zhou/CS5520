@@ -11,11 +11,20 @@ import android.view.View;
 import android.widget.EditText;
 
 import androidx.appcompat.app.AppCompatDialogFragment;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.android.material.snackbar.Snackbar;
 
 public class PopupDialog extends AppCompatDialogFragment {
     private EditText editName;
     private EditText editPassword;
     private DialogListener listener;
+    private RecyclerView recyclerView;
+
+    public PopupDialog(RecyclerView recyclerView) {
+        this.recyclerView = recyclerView;
+    }
+
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -37,6 +46,8 @@ public class PopupDialog extends AppCompatDialogFragment {
                         String username = editName.getText().toString();
                         String password = editPassword.getText().toString();
                         listener.applyTexts(username, password);
+                        Snackbar snackbar = Snackbar.make(recyclerView,"Add an URL link to the list",Snackbar.LENGTH_SHORT);
+                        snackbar.show();
                     }
                 });
 
