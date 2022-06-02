@@ -1,5 +1,7 @@
 package edu.neu.numad22sp_yongxi;
 
+import static android.content.ContentValues.TAG;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -8,6 +10,7 @@ import android.app.Dialog;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -17,11 +20,8 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
 
-public class LinkControllerPage extends AppCompatActivity implements PopupDialog.DialogListener {
+public class LinkControllerPage extends AppCompatActivity implements DialogListener {
     FloatingActionButton btn_add;
-    Dialog mDialog;
-    private TextView tv_user;
-    private TextView tv_password;
 
     private RecyclerView recyclerView;
     private RecyclerView.Adapter myAdapter;
@@ -32,12 +32,10 @@ public class LinkControllerPage extends AppCompatActivity implements PopupDialog
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_link_controller_page);
-
-        itemList = new ArrayList<>();
-        tv_user = findViewById(R.id.tv_user);
-        tv_password = findViewById(R.id.tv_password);
+        itemList = MyApplication.getItemList();
+        Log.d(TAG, "onCreate: " + itemList.toString());
+        Toast.makeText(this, "URLs count = " + itemList.size(), Toast.LENGTH_LONG).show();
         btn_add = findViewById(R.id.btn_addFloating);
-        mDialog = new Dialog(this);
 
         // bind recycleView id - Widget
         recyclerView = findViewById(R.id.recyclerView);
@@ -53,7 +51,7 @@ public class LinkControllerPage extends AppCompatActivity implements PopupDialog
         btn_add.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                openDialog();
+                openDialog(savedInstanceState);
             }
         });
     }
@@ -62,20 +60,17 @@ public class LinkControllerPage extends AppCompatActivity implements PopupDialog
         return recyclerView;
     }
 
-    private void openDialog() {
-        PopupDialog popupDialog = new PopupDialog(this.getRecyclerView());
+    private void openDialog(Bundle savedInstanceState) {
+        PopupDialog popupDialog = new PopupDialog(this.getRecyclerView(), this, savedInstanceState);
         popupDialog.show(getSupportFragmentManager(), "example dialog");
     }
 
     @Override
-    public void applyTexts(String user, String password) {
-        if (user.equals("") || password.equals("")) {
-            return;
-        }
-        ItemURL curItem = new ItemURL(user, password);
+    public void applyTexts(String name, String link) {
+        ItemURL curItem = new ItemURL(name, link);
         itemList.add(curItem);
-        tv_user.setText(user);
-        tv_password.setText(password);
+        // hot refresh
+        recyclerView.setAdapter(new RecycleViewAdapter(itemList, this));
     }
 
 }

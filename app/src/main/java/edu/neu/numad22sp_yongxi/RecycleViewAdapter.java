@@ -1,7 +1,10 @@
 package edu.neu.numad22sp_yongxi;
 
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
@@ -20,7 +23,7 @@ public class RecycleViewAdapter extends RecyclerView.Adapter<ItemViewHolder> {
     @NonNull
     @Override
     public ItemViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return new ItemViewHolder(LayoutInflater.from(context).inflate(R.layout.recycleitem, null));
+        return new ItemViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.recycleitem, parent, false));
     }
 
     @Override

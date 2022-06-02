@@ -5,10 +5,12 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatDialogFragment;
 import androidx.recyclerview.widget.RecyclerView;
@@ -17,12 +19,17 @@ import com.google.android.material.snackbar.Snackbar;
 
 public class PopupDialog extends AppCompatDialogFragment {
     private EditText editName;
-    private EditText editPassword;
+    private EditText editURL;
     private DialogListener listener;
     private RecyclerView recyclerView;
+    LinkControllerPage context;
+    Bundle savedInstanceState;
+    private View mainView;
 
-    public PopupDialog(RecyclerView recyclerView) {
+    public PopupDialog(RecyclerView recyclerView, LinkControllerPage context, Bundle savedInstanceState) {
         this.recyclerView = recyclerView;
+        this.context = context;
+        this.savedInstanceState = savedInstanceState;
     }
 
     @Override
@@ -43,16 +50,27 @@ public class PopupDialog extends AppCompatDialogFragment {
                 .setPositiveButton("ok", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        String username = editName.getText().toString();
-                        String password = editPassword.getText().toString();
-                        listener.applyTexts(username, password);
+                        String name = editName.getText().toString();
+                        String link = editURL.getText().toString();
+                        if (name.equals("") || link.equals("") ) {
+                            Snackbar snackbar = Snackbar.make(recyclerView,"name or link should not be empty",Snackbar.LENGTH_SHORT);
+                            snackbar.show();
+                            return;
+                        }
+                        if (!link.startsWith("https://")) {
+                            Snackbar snackbar = Snackbar.make(recyclerView,"valid URL link should start with https://",Snackbar.LENGTH_SHORT);
+                            snackbar.show();
+                            return;
+                        }
+                        listener.applyTexts(name, link);
                         Snackbar snackbar = Snackbar.make(recyclerView,"Add an URL link to the list",Snackbar.LENGTH_SHORT);
                         snackbar.show();
+
                     }
                 });
 
         editName = view.findViewById(R.id.et_name);
-        editPassword = view.findViewById(R.id.et_URL);
+        editURL = view.findViewById(R.id.et_URL);
         return builder.create();
     }
 
@@ -68,7 +86,5 @@ public class PopupDialog extends AppCompatDialogFragment {
     }
 
 
-    public interface DialogListener {
-        void applyTexts(String user, String password);
-    }
+
 }
