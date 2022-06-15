@@ -19,59 +19,58 @@ import android.provider.Settings;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+
 import java.util.List;
 
-public class LocatorPage extends AppCompatActivity implements LocationListener {
+public class LocatorPage extends AppCompatActivity {
 
     TextView tv_latitude;
     TextView tv_longitude;
-    LocationManager locationManager;
+    private LocationManager locationManager;
     private String locationProvider = null;
-    LocationListener locationListener;
+
+    private FusedLocationProviderClient fusedLocationClient;
+    private Location startLocation;
+    private Location endLocation;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_locator_page);
-        tv_latitude = findViewById(R.id.tv_latitude);
+
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+
         tv_longitude = findViewById(R.id.tv_longitude);
-        if (ContextCompat.checkSelfPermission(LocatorPage.this, Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(LocatorPage.this, new String[] {
-                    Manifest.permission.ACCESS_FINE_LOCATION
-            }, 1);
-        }
-        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-            OnGPS();
-        } else {
-            locationListener = new LocationListener() {
-                //status change
-                @Override
-                public void onStatusChanged(String provider, int status, Bundle extras) {
-                }
-                // enable
-                @Override
-                public void onProviderEnabled(String provider) {
-                }
-                // disable
-                @Override
-                public void onProviderDisabled(String provider) {
-                }
-                //location change
-                @Override
-                public void onLocationChanged(Location location) {
-                    if (location != null) {
-                        tv_longitude.setText(String.valueOf(location.getLongitude()));
-                        //new Latitude
-                        tv_latitude.setText(String.valueOf(location.getLatitude()));
-                    }
-                }
-            };
-            getLocation();
-        }
+        tv_latitude = findViewById(R.id.tv_latitude);
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED ||
+                ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
+                        != PackageManager.PERMISSION_GRANTED) {
+            //request
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION}, 1);
 
-    }
+        }else{
+            //location manager
+            locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+            //provider
+            List<String> providers = locationManager.getProviders(true);
+            if (providers.contains(LocationManager.GPS_PROVIDER)) {
+                locationProvider = LocationManager.GPS_PROVIDER;
+            } else if (providers.contains(LocationManager.NETWORK_PROVIDER)) {
+                locationProvider = LocationManager.NETWORK_PROVIDER;
+            } else {
+                Toast.makeText(this, "Can't find the location", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            //get location
+            locationManager.requestLocationUpdates(locationProvider, 0, 0, locationListener);
+        }
+    };
 
+    //callback after request permission
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
 
@@ -89,7 +88,7 @@ public class LocatorPage extends AppCompatActivity implements LocationListener {
                     } else if (providers.contains(LocationManager.NETWORK_PROVIDER)) {
                         locationProvider = LocationManager.NETWORK_PROVIDER;
                     } else {
-                        Toast.makeText(this, "No Avaliable Locator", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, "Can't find the location", Toast.LENGTH_SHORT).show();
                     }
                     //get location
                     try {
@@ -103,72 +102,26 @@ public class LocatorPage extends AppCompatActivity implements LocationListener {
         }
     };
 
-    private void OnGPS() {
-        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-
-        builder.setMessage("Enable GPS").setCancelable(false).setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
-            }
-        }).setNegativeButton("No", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.cancel();
-            }
-        });
-        final AlertDialog alertDialog = builder.create();
-        alertDialog.show();
-    }
-
-    private void getLocation() {
-        if (
-                ActivityCompat.checkSelfPermission(LocatorPage.this, Manifest.permission.ACCESS_FINE_LOCATION)
-                        != PackageManager.PERMISSION_GRANTED &&
-                        ActivityCompat.checkSelfPermission(LocatorPage.this, Manifest.permission.ACCESS_COARSE_LOCATION)
-                                != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(LocatorPage.this, new String[]{
-                    Manifest.permission.ACCESS_FINE_LOCATION
-            }, 100);
-        } else {
-            //location manager
-            locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-            //provider
-            List<String> providers = locationManager.getProviders(true);
-            if (providers.contains(LocationManager.GPS_PROVIDER)) {
-                locationProvider = LocationManager.GPS_PROVIDER;
-            } else if (providers.contains(LocationManager.NETWORK_PROVIDER)) {
-                locationProvider = LocationManager.NETWORK_PROVIDER;
-            } else {
-                Toast.makeText(this, "No Avaliable Locator", Toast.LENGTH_SHORT).show();
-                return;
-            }
-            //get location
-            locationManager.requestLocationUpdates(locationProvider, 0, 0, locationListener);
-
-//            Location locationGps = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-//            if (locationGps != null) {
-//                double lat = locationGps.getLatitude();
-//                double longitude = locationGps.getLongitude();
-//                tv_latitude.setText("Latitude: " + String.valueOf(lat));
-//                tv_longitude.setText("Longitude: " + String.valueOf(longitude));
-//            } else {
-//                Toast.makeText(this, "Can't get your location", Toast.LENGTH_SHORT).show();
-//            }
-//
-//            try {
-//
-//                locationManager.requestLocationUpdates(locationProvider, 0, 0, locationListener);
-//
-//            } catch (SecurityException e) {
-//            }
+    public LocationListener locationListener = new LocationListener() {
+        //status change
+        @Override
+        public void onStatusChanged(String provider, int status, Bundle extras) {
         }
-    }
-
-    @Override
-    public void onLocationChanged(@NonNull Location location) {
-        tv_longitude.setText(String.valueOf(location.getLongitude()));
-        //new Latitude
-        tv_latitude.setText(String.valueOf(location.getLatitude()));
-    }
+        // enable
+        @Override
+        public void onProviderEnabled(String provider) {
+        }
+        // disable
+        @Override
+        public void onProviderDisabled(String provider) {
+        }
+        //location change
+        @Override
+        public void onLocationChanged(Location location) {
+            if (location != null) {
+                tv_longitude.setText(String.valueOf("Longitude: " + location.getLongitude()));
+                tv_latitude.setText(String.valueOf("Latitude: " + location.getLatitude()));
+            }
+        }
+    };
 }
