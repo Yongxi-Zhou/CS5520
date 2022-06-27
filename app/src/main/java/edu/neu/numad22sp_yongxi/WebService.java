@@ -78,7 +78,13 @@ public class WebService extends AppCompatActivity {
             }
             try {
                 serviceList = new ArrayList<>();
-                String mealDB = "https://www.themealdb.com/api/json/v1/1/search.php?s=" + input;
+                String mealDB;
+                if (input == "all") {
+                    mealDB = "https://www.themealdb.com/api/json/v1/1/search.php?f=a";
+                } else {
+                    mealDB = "https://www.themealdb.com/api/json/v1/1/search.php?s=" + input;
+                }
+
                 URL url = new URL(mealDB);
                 // Get String response from the url address
                 String resp = NetworkUtil.httpResponse(url);
@@ -176,11 +182,9 @@ public class WebService extends AppCompatActivity {
                     Thread mt1 = new Thread(mt, "Service");
                     mt.start();
                     createRecyclerView();
-
                 }
             }
         });
-
     }
 
 
