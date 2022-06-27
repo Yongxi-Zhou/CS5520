@@ -1,5 +1,9 @@
 package edu.neu.numad22sp_yongxi;
 
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.os.Bundle;
+
 import android.graphics.Bitmap;
 
 public class ServiceCard {
@@ -27,9 +31,5 @@ public class ServiceCard {
     public String getServiceName() {
         return serviceName;
     }
-
-
-
-
 
 }
