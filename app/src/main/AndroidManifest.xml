@@ -2,10 +2,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="edu.neu.numad22sp_yongxi">
-
     <!-- Include only if your app benefits from precise location access. -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -16,6 +16,12 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.NUMAD22Sp_yongxi"
         tools:targetApi="31">
+        <activity
+            android:name=".ServiceCard"
+            android:exported="false" />
+        <activity
+            android:name=".ServicePage"
+            android:exported="false" />
         <activity
             android:name=".LocatorPage"
             android:exported="false" />

@@ -15,6 +15,7 @@ public class MainActivity extends AppCompatActivity {
     Button btn_link;
     Button btn_prime;
     Button btn_locator;
+    Button btn_service;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,6 +63,15 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(MainActivity.this, LocatorPage.class);
+                startActivity(intent);
+            }
+        });
+
+        btn_service = findViewById(R.id.btn_service);
+        btn_service.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, ServicePage.class);
                 startActivity(intent);
             }
         });
